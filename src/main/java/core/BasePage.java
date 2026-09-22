@@ -6,6 +6,7 @@ import org.openqa.selenium.support.Color;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import pageUIs.BasePageUI;
 
 import java.time.Duration;
 import java.util.List;
@@ -144,7 +145,7 @@ public class BasePage {
     /**
      * Overload — dùng khi locator là dynamic (có %s).
      */
-    protected String getAttributeValue(WebDriver driver, String locator, String attributeName, String restParameter) {
+    protected String getAttributeValue(WebDriver driver, String locator, String attributeName, String... restParameter) {
         return getElement(driver, getDynamicLocator(locator, restParameter)).getAttribute(attributeName);
     }
 
@@ -247,10 +248,9 @@ public class BasePage {
     // --- Click ---
 
     /**
-     * Click vào element — có explicit wait cho đến khi element clickable.
+     * Click vào element
      */
     protected void clickToElement(WebDriver driver, String locator) {
-        waitForElementClickable(driver, locator);
         getElement(driver, locator).click();
     }
 
@@ -262,7 +262,6 @@ public class BasePage {
      *   clickToElement(driver, menuItem, "Admin");
      */
     protected void clickToElement(WebDriver driver, String locator, String... values) {
-        waitForElementClickable(driver, getDynamicLocator(locator, values));
         getElement(driver, getDynamicLocator(locator, values)).click();
     }
 
@@ -270,10 +269,8 @@ public class BasePage {
 
     /**
      * Xóa nội dung cũ rồi nhập text mới vào input field.
-     * Có explicit wait cho đến khi element visible.
      */
     protected void sendKeysToElement(WebDriver driver, String locator, String value) {
-        waitForElementVisible(driver, locator);
         getElement(driver, locator).clear();
         getElement(driver, locator).sendKeys(value);
     }
@@ -594,6 +591,22 @@ public class BasePage {
     }
 
     /**
+     * Chờ cho element biến mất trên UI và DOM
+     */
+    protected void waitForElementInvisible(WebDriver driver, String locator) {
+        new WebDriverWait(driver, Duration.ofSeconds(GlobalConstants.LONG_TIMEOUT))
+                .until(ExpectedConditions.invisibilityOfElementLocated(getByLocator(locator)));
+    }
+
+    /**
+     * Chờ cho list elements biến mất trên UI và DOM
+     */
+    protected void waitForListElementsInvisible(WebDriver driver, String locator) {
+        new WebDriverWait(driver, Duration.ofSeconds(GlobalConstants.LONG_TIMEOUT))
+                .until(ExpectedConditions.invisibilityOfAllElements(getListElement(driver, locator)));
+    }
+
+    /**
      * Sleep cứng theo số giây.
      * Hạn chế dùng — chỉ dùng khi wait condition không áp dụng được
      * (vd: chờ animation, chờ file download, chờ email...).
@@ -608,4 +621,16 @@ public class BasePage {
         }
     }
 
+    // =============================================================================
+    // 10. BASE PAGE
+    // Chứa các hàm dùng chung cho các Page ví dụ như đợi Loading icon biến mất
+    // =============================================================================
+
+    /**
+     * Đợi cho loading icon biến mất
+     */
+
+    protected void waitForLoadingIconInvisible(WebDriver driver) {
+        waitForListElementsInvisible(driver, BasePageUI.LOADING_ICON);
+    }
 }
