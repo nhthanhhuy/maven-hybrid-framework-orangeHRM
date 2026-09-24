@@ -9,23 +9,21 @@ public class LoginPageObject extends BasePage {
     private WebDriver driver;
 
     public LoginPageObject(WebDriver driver) {
+        super(driver);
         this.driver = driver;
     }
 
     public void enterUsernameTextbox(String username) {
-        waitForElementVisible(driver, LoginPageUI.USERNAME_TEXTBOX);
-        sendKeysToElement(driver, LoginPageUI.USERNAME_TEXTBOX, username);
+        sendKeysToElement(LoginPageUI.USERNAME_TEXTBOX, username);
     }
 
     public void enterPasswordTextbox(String password) {
-        waitForElementVisible(driver, LoginPageUI.PASSWORD_TEXTBOX);
-        sendKeysToElement(driver, LoginPageUI.PASSWORD_TEXTBOX, password);
+        sendKeysToElement(LoginPageUI.PASSWORD_TEXTBOX, password);
     }
 
     public DashboardPageObject clickToLoginButton() {
-        waitForElementClickable(driver, LoginPageUI.LOGIN_BUTTON);
-        clickToElement(driver, LoginPageUI.LOGIN_BUTTON);
-        waitForLoadingIconInvisible(driver);
+        clickToElement(LoginPageUI.LOGIN_BUTTON);
+        waitForLoadingIconInvisible();
         return PageGenerator.getDashboardPage(driver);
     }
 

@@ -30,6 +30,14 @@ import java.util.List;
  */
 public class BasePage {
 
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    public BasePage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(GlobalConstants.LONG_TIMEOUT));
+    }
+
     // =============================================================================
     // 1. BROWSER
     // Các hàm điều hướng cơ bản của trình duyệt.
@@ -39,7 +47,7 @@ public class BasePage {
      * Mở URL trên trình duyệt.
      * Dùng trong @BeforeClass hoặc khi cần navigate đến trang mới.
      */
-    protected void openUrl(WebDriver driver, String url) {
+    protected void openUrl(String url) {
         driver.get(url);
     }
 
@@ -47,14 +55,14 @@ public class BasePage {
      * Lấy URL hiện tại trên thanh địa chỉ.
      * Dùng để verify sau khi login hoặc redirect.
      */
-    protected String getCurrentUrl(WebDriver driver) {
+    protected String getCurrentUrl() {
         return driver.getCurrentUrl();
     }
 
     /**
      * Quay lại trang trước (tương đương nút Back trên trình duyệt).
      */
-    protected void navigateBack(WebDriver driver) {
+    protected void navigateBack() {
         driver.navigate().back();
     }
 
@@ -109,7 +117,7 @@ public class BasePage {
     /**
      * Tìm và trả về một WebElement theo locator string.
      */
-    private WebElement getElement(WebDriver driver, String locator) {
+    private WebElement getElement(String locator) {
         return driver.findElement(getByLocator(locator));
     }
 
@@ -117,7 +125,7 @@ public class BasePage {
      * Tìm và trả về danh sách WebElement theo locator string.
      * Dùng khi cần đếm số lượng element hoặc loop qua nhiều element.
      */
-    private List<WebElement> getListElement(WebDriver driver, String locator) {
+    private List<WebElement> getListElement(String locator) {
         return driver.findElements(getByLocator(locator));
     }
 
@@ -131,30 +139,34 @@ public class BasePage {
      * Lấy text hiển thị của element.
      * Tương đương .getText() của Selenium.
      */
-    protected String getTextElement(WebDriver driver, String locator) {
-        return getElement(driver, locator).getText();
+    protected String getTextElement(String locator) {
+        waitForElementVisible(locator);
+        return getElement(locator).getText();
     }
 
     /**
      * Lấy giá trị của một HTML attribute (vd: value, placeholder, href, class...).
      */
-    protected String getAttributeValue(WebDriver driver, String locator, String attributeName) {
-        return getElement(driver, locator).getAttribute(attributeName);
+    protected String getAttributeValue(String locator, String attributeName) {
+        waitForElementVisible(locator);
+        return getElement(locator).getAttribute(attributeName);
     }
 
     /**
      * Overload — dùng khi locator là dynamic (có %s).
      */
-    protected String getAttributeValue(WebDriver driver, String locator, String attributeName, String... restParameter) {
-        return getElement(driver, getDynamicLocator(locator, restParameter)).getAttribute(attributeName);
+    protected String getAttributeValue(String locator, String attributeName, String... restParameter) {
+        waitForElementVisible(getDynamicLocator(locator, restParameter));
+        return getElement(getDynamicLocator(locator, restParameter)).getAttribute(attributeName);
     }
 
     /**
      * Lấy giá trị CSS property của element (vd: color, background-color, font-size...).
      * Kết quả trả về dạng rgba — dùng getHexaColorFromRGBA() để convert sang HEX nếu cần.
      */
-    protected String getCssValue(WebDriver driver, String locator, String cssName) {
-        return getElement(driver, locator).getCssValue(cssName);
+    protected String getCssValue(String locator, String cssName) {
+        waitForElementVisible(locator);
+        return getElement(locator).getCssValue(cssName);
     }
 
     /**
@@ -175,16 +187,16 @@ public class BasePage {
      * Lấy kích thước (width x height) của element.
      * Dùng để verify UI layout hoặc responsive design.
      */
-    protected Dimension getSizeElement(WebDriver driver, String locator) {
-        return getElement(driver, locator).getSize();
+    protected Dimension getSizeElement(String locator) {
+        return getElement(locator).getSize();
     }
 
     /**
      * Đếm số lượng element khớp với locator.
      * Dùng để verify số dòng trong table, số item trong list...
      */
-    protected int getElementsSize(WebDriver driver, String locator) {
-        return getListElement(driver, locator).size();
+    protected int getElementsSize(String locator) {
+        return getListElement(locator).size();
     }
 
 
@@ -197,46 +209,47 @@ public class BasePage {
      * Kiểm tra element có đang hiển thị trên UI không.
      * Lưu ý: element vẫn có thể tồn tại trong DOM nhưng bị ẩn (display:none).
      */
-    protected boolean isDisplayed(WebDriver driver, String locator) {
-        return getElement(driver, locator).isDisplayed();
+    protected boolean isDisplayed(String locator) {
+        return getElement(locator).isDisplayed();
     }
 
     /**
      * Overload — dùng khi locator là dynamic (có %s).
      */
-    protected boolean isDisplayed(WebDriver driver, String locator, String... restParameter) {
-        return getElement(driver, getDynamicLocator(locator, restParameter)).isDisplayed();
+    protected boolean isDisplayed(String locator, String... restParameter) {
+        return getElement(getDynamicLocator(locator, restParameter)).isDisplayed();
     }
 
     /**
      * Kiểm tra element có đang được chọn không.
      * Dùng cho checkbox và radio button.
      */
-    protected boolean isSelected(WebDriver driver, String locator) {
-        return getElement(driver, locator).isSelected();
+    protected boolean isSelected(String locator) {
+        return getElement(locator).isSelected();
     }
 
     /**
      * Overload — dùng khi locator là dynamic (có %s).
      */
-    protected boolean isSelected(WebDriver driver, String locator, String... restParameter) {
-        return getElement(driver, getDynamicLocator(locator, restParameter)).isSelected();
+    protected boolean isSelected(String locator, String... restParameter) {
+        return getElement(getDynamicLocator(locator, restParameter)).isSelected();
     }
 
     /**
      * Kiểm tra element có đang được enable (tương tác được) không.
      * Dùng để verify button hoặc input field bị disabled.
      */
-    protected boolean isEnabled(WebDriver driver, String locator) {
-        return getElement(driver, locator).isEnabled();
+    protected boolean isEnabled(String locator) {
+        return getElement(locator).isEnabled();
     }
 
     /**
      * Kiểm tra dropdown có phải là multi-select không.
      * Dùng cho <select multiple> tag.
      */
-    protected boolean isDropdownMultiple(WebDriver driver, String locator) {
-        return new Select(getElement(driver, locator)).isMultiple();
+    protected boolean isDropdownMultiple(String locator) {
+        waitForElementVisible(locator);
+        return new Select(getElement(locator)).isMultiple();
     }
 
 
@@ -250,8 +263,9 @@ public class BasePage {
     /**
      * Click vào element
      */
-    protected void clickToElement(WebDriver driver, String locator) {
-        getElement(driver, locator).click();
+    protected void clickToElement(String locator) {
+        waitForElementClickable(locator);
+        getElement(locator).click();
     }
 
     /**
@@ -261,8 +275,9 @@ public class BasePage {
      *   private String menuItem = "xpath=//li[text()='%s']";
      *   clickToElement(driver, menuItem, "Admin");
      */
-    protected void clickToElement(WebDriver driver, String locator, String... values) {
-        getElement(driver, getDynamicLocator(locator, values)).click();
+    protected void clickToElement(String locator, String... values) {
+        waitForElementClickable(getDynamicLocator(locator, values));
+        getElement(getDynamicLocator(locator, values)).click();
     }
 
     // --- Input ---
@@ -270,9 +285,11 @@ public class BasePage {
     /**
      * Xóa nội dung cũ rồi nhập text mới vào input field.
      */
-    protected void sendKeysToElement(WebDriver driver, String locator, String value) {
-        getElement(driver, locator).clear();
-        getElement(driver, locator).sendKeys(value);
+    protected void sendKeysToElement(String locator, String value) {
+        waitForElementVisible(locator);
+        WebElement element = getElement(locator);
+        element.clear();
+        element.sendKeys(value);
     }
 
     // --- Dropdown (HTML <select> tag) ---
@@ -280,15 +297,17 @@ public class BasePage {
     /**
      * Chọn item trong dropdown <select> theo visible text.
      */
-    protected void selectItemInDropDown(WebDriver driver, String locator, String itemText) {
-        new Select(getElement(driver, locator)).selectByVisibleText(itemText);
+    protected void selectItemInDropDown(String locator, String itemText) {
+        waitForElementVisible(locator);
+        new Select(getElement(locator)).selectByVisibleText(itemText);
     }
 
     /**
      * Lấy text của item đang được chọn trong dropdown <select>.
      */
-    protected String getSelectedItemInDropdown(WebDriver driver, String locator) {
-        return new Select(getElement(driver, locator)).getFirstSelectedOption().getText();
+    protected String getSelectedItemInDropdown(String locator) {
+        waitForElementVisible(locator);
+        return new Select(getElement(locator)).getFirstSelectedOption().getText();
     }
 
     /**
@@ -303,12 +322,12 @@ public class BasePage {
      * @param childItemLocator Locator của tất cả các item bên trong dropdown
      * @param expectedItem     Text của item cần chọn
      */
-    protected void selectItemInCustomDropdown(WebDriver driver, String parentLocator, String childItemLocator, String expectedItem) {
-        getElement(driver, parentLocator).click();
+    protected void selectItemInCustomDropdown(String parentLocator, String childItemLocator, String expectedItem) {
+        waitForElementClickable(parentLocator);
+        getElement(parentLocator).click();
         sleepInSeconds(2);
 
-        List<WebElement> allItems = new WebDriverWait(driver, Duration.ofSeconds(30))
-                .until(ExpectedConditions.presenceOfAllElementsLocatedBy(getByLocator(childItemLocator)));
+        List<WebElement> allItems = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(getByLocator(childItemLocator)));
 
         for (WebElement item : allItems) {
             if (item.getText().trim().equals(expectedItem)) {
@@ -326,36 +345,40 @@ public class BasePage {
     /**
      * Tick vào checkbox hoặc radio button (chỉ click nếu chưa được chọn).
      */
-    protected void checkTheCheckboxOrRadio(WebDriver driver, String locator) {
-        if (!getElement(driver, locator).isSelected()) {
-            getElement(driver, locator).click();
+    protected void checkTheCheckboxOrRadio(String locator) {
+        waitForElementClickable(locator);
+        if (!getElement(locator).isSelected()) {
+            getElement(locator).click();
         }
     }
 
     /**
      * Overload — dùng khi locator là dynamic (có %s).
      */
-    protected void checkTheCheckboxOrRadio(WebDriver driver, String locator, String... restParameter) {
-        if (!getElement(driver, getDynamicLocator(locator, restParameter)).isSelected()) {
-            getElement(driver, getDynamicLocator(locator, restParameter)).click();
+    protected void checkTheCheckboxOrRadio(String locator, String... restParameter) {
+        waitForElementClickable(locator);
+        if (!getElement(getDynamicLocator(locator, restParameter)).isSelected()) {
+            getElement(getDynamicLocator(locator, restParameter)).click();
         }
     }
 
     /**
      * Bỏ tick checkbox (chỉ click nếu đang được chọn).
      */
-    protected void uncheckTheCheckbox(WebDriver driver, String locator) {
-        if (getElement(driver, locator).isSelected()) {
-            getElement(driver, locator).click();
+    protected void uncheckTheCheckbox(String locator) {
+        waitForElementClickable(locator);
+        if (getElement(locator).isSelected()) {
+            getElement(locator).click();
         }
     }
 
     /**
      * Overload — dùng khi locator là dynamic (có %s).
      */
-    protected void uncheckTheCheckbox(WebDriver driver, String locator, String... restParameter) {
-        if (getElement(driver, getDynamicLocator(locator, restParameter)).isSelected()) {
-            getElement(driver, getDynamicLocator(locator, restParameter)).click();
+    protected void uncheckTheCheckbox(String locator, String... restParameter) {
+        waitForElementClickable(locator);
+        if (getElement(getDynamicLocator(locator, restParameter)).isSelected()) {
+            getElement(getDynamicLocator(locator, restParameter)).click();
         }
     }
 
@@ -369,7 +392,7 @@ public class BasePage {
     /**
      * Khởi tạo Actions object — dùng nội bộ hoặc khi cần chain nhiều action.
      */
-    protected Actions getActions(WebDriver driver) {
+    protected Actions getActions() {
         return new Actions(driver);
     }
 
@@ -377,59 +400,67 @@ public class BasePage {
      * Click chuột trái vào element bằng Actions.
      * Dùng khi .click() thông thường bị chặn bởi overlay hoặc animation.
      */
-    protected void leftClickToElement(WebDriver driver, String locator) {
-        getActions(driver).click(getElement(driver, locator)).perform();
+    protected void leftClickToElement(String locator) {
+        waitForElementClickable(locator);
+        getActions().click(getElement(locator)).perform();
     }
 
     /**
      * Double click vào element.
      */
-    protected void doubleClickToElement(WebDriver driver, String locator) {
-        getActions(driver).doubleClick(getElement(driver, locator)).perform();
+    protected void doubleClickToElement(String locator) {
+        waitForElementClickable(locator);
+        getActions().doubleClick(getElement(locator)).perform();
     }
 
     /**
      * Di chuyển chuột đến element (hover).
      * Dùng để trigger tooltip hoặc hiện sub-menu.
      */
-    protected void hoverMouseToElement(WebDriver driver, String locator) {
-        getActions(driver).moveToElement(getElement(driver, locator)).perform();
+    protected void hoverMouseToElement(String locator) {
+        waitForElementVisible(locator);
+        getActions().moveToElement(getElement(locator)).perform();
     }
 
     /**
      * Click chuột phải vào element (context menu).
      */
-    protected void rightClickToElement(WebDriver driver, String locator) {
-        getActions(driver).contextClick(getElement(driver, locator)).perform();
+    protected void rightClickToElement(String locator) {
+        waitForElementClickable(locator);
+        getActions().contextClick(getElement(locator)).perform();
     }
 
     /**
      * Kéo thả element từ source đến target.
      */
-    protected void dragAndDropToElement(WebDriver driver, String sourceLocator, String targetLocator) {
-        getActions(driver).dragAndDrop(getElement(driver, sourceLocator), getElement(driver, targetLocator)).perform();
+    protected void dragAndDropToElement(String sourceLocator, String targetLocator) {
+        waitForElementVisible(sourceLocator);
+        waitForElementVisible(targetLocator);
+        getActions().dragAndDrop(getElement(sourceLocator), getElement(targetLocator)).perform();
     }
 
     /**
      * Scroll trang đến vị trí của element bằng Actions.
      * Selenium 4+ hỗ trợ native — không cần JS.
      */
-    protected void scrollToElement(WebDriver driver, String locator) {
-        getActions(driver).scrollToElement(getElement(driver, locator)).perform();
+    protected void scrollToElement(String locator) {
+        getActions().scrollToElement(getElement(locator)).perform();
     }
 
     /**
      * Gửi phím bàn phím đến element (vd: Keys.ENTER, Keys.TAB, Keys.ESCAPE).
      */
-    protected void sendKeyboardToElement(WebDriver driver, String locator, Keys key) {
-        getActions(driver).sendKeys(getElement(driver, locator), key).perform();
+    protected void sendKeyboardToElement(String locator, Keys key) {
+        waitForElementVisible(locator);
+        getActions().sendKeys(getElement(locator), key).perform();
     }
 
     /**
      * Overload — dùng khi locator là dynamic (có %s).
      */
-    protected void sendKeyboardToElement(WebDriver driver, String locator, Keys key, String... restParameter) {
-        getActions(driver).sendKeys(getElement(driver, getDynamicLocator(locator, restParameter)), key).perform();
+    protected void sendKeyboardToElement(String locator, Keys key, String... restParameter) {
+        waitForElementVisible(locator);
+        getActions().sendKeys(getElement(getDynamicLocator(locator, restParameter)), key).perform();
     }
 
 
@@ -443,8 +474,8 @@ public class BasePage {
      * Highlight element bằng border đỏ trong 2 giây rồi khôi phục style cũ.
      * Hữu ích khi debug hoặc demo để thấy element nào đang được tương tác.
      */
-    protected void highlightElement(WebDriver driver, String locator) {
-        WebElement element = getElement(driver, locator);
+    protected void highlightElement(String locator) {
+        WebElement element = getElement(locator);
         String originalStyle = element.getAttribute("style");
         ((JavascriptExecutor) driver).executeScript("arguments[0].setAttribute('style', arguments[1])", element, "border: 2px solid red; border-style: dashed;");
         sleepInSeconds(2);
@@ -455,29 +486,29 @@ public class BasePage {
      * Click vào element bằng JavaScript.
      * Dùng khi element bị che bởi overlay hoặc .click() ném ElementClickInterceptedException.
      */
-    protected void clickToElementByJS(WebDriver driver, String locator) {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", getElement(driver, locator));
+    protected void clickToElementByJS(String locator) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", getElement(locator));
         sleepInSeconds(3);
     }
 
     /**
      * Scroll trang để element xuất hiện ở đầu viewport (scrollIntoView = true).
      */
-    protected void scrollToElementOnTopByJS(WebDriver driver, String locator) {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", getElement(driver, locator));
+    protected void scrollToElementOnTopByJS(String locator) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", getElement(locator));
     }
 
     /**
      * Scroll trang để element xuất hiện ở cuối viewport (scrollIntoView = false).
      */
-    protected void scrollToElementOnDownByJS(WebDriver driver, String locator) {
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(false);", getElement(driver, locator));
+    protected void scrollToElementOnDownByJS(String locator) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(false);", getElement(locator));
     }
 
     /**
      * Scroll xuống cuối trang.
      */
-    protected void scrollToBottomPageByJS(WebDriver driver) {
+    protected void scrollToBottomPageByJS() {
         ((JavascriptExecutor) driver).executeScript("window.scrollBy(0,document.body.scrollHeight)");
     }
 
@@ -485,60 +516,60 @@ public class BasePage {
      * Gán giá trị cho attribute của element trực tiếp trên DOM.
      * Dùng để set readonly field hoặc thay đổi attribute mà Selenium không hỗ trợ.
      */
-    protected void setAttributeInDOM(WebDriver driver, String locator, String attributeName, String attributeValue) {
+    protected void setAttributeInDOM(String locator, String attributeName, String attributeValue) {
         ((JavascriptExecutor) driver).executeScript(
                 "arguments[0].setAttribute('" + attributeName + "', '" + attributeValue + "');",
-                getElement(driver, locator));
+                getElement(locator));
     }
 
     /**
      * Xóa một attribute khỏi element trên DOM.
      * Ví dụ: xóa attribute "disabled" để enable một button bị khóa.
      */
-    protected void removeAttributeInDOM(WebDriver driver, String locator, String attributeRemove) {
+    protected void removeAttributeInDOM(String locator, String attributeRemove) {
         ((JavascriptExecutor) driver).executeScript(
                 "arguments[0].removeAttribute('" + attributeRemove + "');",
-                getElement(driver, locator));
+                getElement(locator));
     }
 
     /**
      * Nhập text vào input field bằng JavaScript (set attribute value).
      * Dùng cho các field không nhận sendKeys() thông thường.
      */
-    protected void sendkeyToElementByJS(WebDriver driver, String locator, String value) {
+    protected void sendkeyToElementByJS(String locator, String value) {
         ((JavascriptExecutor) driver).executeScript(
                 "arguments[0].setAttribute('value', '" + value + "')",
-                getElement(driver, locator));
+                getElement(locator));
     }
 
     /**
      * Lấy giá trị attribute của element thông qua JavaScript.
      * Khác getAttribute() ở chỗ đọc thẳng từ DOM — hữu ích với các attribute ẩn.
      */
-    protected String getAttributeInDOMByJS(WebDriver driver, String locator, String attributeName) {
+    protected String getAttributeInDOMByJS(String locator, String attributeName) {
         return (String) ((JavascriptExecutor) driver).executeScript(
                 "return arguments[0].getAttribute('" + attributeName + "');",
-                getElement(driver, locator));
+                getElement(locator));
     }
 
     /**
      * Lấy thông báo validation HTML5 của input field (vd: "Please fill out this field").
      * Dùng để verify client-side validation mà không cần đọc text trên UI.
      */
-    protected String getElementValidationMessage(WebDriver driver, String locator) {
+    protected String getElementValidationMessage(String locator) {
         return (String) ((JavascriptExecutor) driver).executeScript(
                 "return arguments[0].validationMessage;",
-                getElement(driver, locator));
+                getElement(locator));
     }
 
     /**
      * Kiểm tra ảnh có load thành công không (naturalWidth > 0).
      * Dùng để verify ảnh avatar, product image không bị broken.
      */
-    protected boolean isImageLoaded(WebDriver driver, String locator) {
+    protected boolean isImageLoaded(String locator) {
         return (boolean) ((JavascriptExecutor) driver).executeScript(
                 "return arguments[0].complete && typeof arguments[0].naturalWidth != 'undefined' && arguments[0].naturalWidth > 0",
-                getElement(driver, locator));
+                getElement(locator));
     }
 
 
@@ -551,15 +582,15 @@ public class BasePage {
      * Switch vào trong iframe theo locator.
      * Phải gọi hàm này trước khi tương tác với element bên trong iframe.
      */
-    protected void switchToIframe(WebDriver driver, String locator) {
-        driver.switchTo().frame(getElement(driver, locator));
+    protected void switchToIframe(String locator) {
+        driver.switchTo().frame(getElement(locator));
     }
 
     /**
      * Quay trở lại trang chính (thoát khỏi iframe).
      * Luôn gọi hàm này sau khi xong việc trong iframe.
      */
-    protected void switchToDefaultContent(WebDriver driver) {
+    protected void switchToDefaultContent() {
         driver.switchTo().defaultContent();
     }
 
@@ -576,34 +607,30 @@ public class BasePage {
      * Chờ cho element có thể click được (visible + enabled).
      * Dùng trước khi click vào button, link, hoặc bất kỳ element tương tác nào.
      */
-    protected void waitForElementClickable(WebDriver driver, String locator) {
-        new WebDriverWait(driver, Duration.ofSeconds(GlobalConstants.LONG_TIMEOUT))
-                .until(ExpectedConditions.elementToBeClickable(getByLocator(locator)));
+    protected void waitForElementClickable(String locator) {
+        wait.until(ExpectedConditions.elementToBeClickable(getByLocator(locator)));
     }
 
     /**
      * Chờ cho element hiển thị trên UI.
      * Dùng trước khi đọc text, attribute hoặc tương tác với element.
      */
-    protected void waitForElementVisible(WebDriver driver, String locator) {
-        new WebDriverWait(driver, Duration.ofSeconds(GlobalConstants.LONG_TIMEOUT))
-                .until(ExpectedConditions.visibilityOfElementLocated(getByLocator(locator)));
+    protected void waitForElementVisible(String locator) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(getByLocator(locator)));
     }
 
     /**
      * Chờ cho element biến mất trên UI và DOM
      */
-    protected void waitForElementInvisible(WebDriver driver, String locator) {
-        new WebDriverWait(driver, Duration.ofSeconds(GlobalConstants.LONG_TIMEOUT))
-                .until(ExpectedConditions.invisibilityOfElementLocated(getByLocator(locator)));
+    protected void waitForElementInvisible(String locator) {
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(getByLocator(locator)));
     }
 
     /**
      * Chờ cho list elements biến mất trên UI và DOM
      */
-    protected void waitForListElementsInvisible(WebDriver driver, String locator) {
-        new WebDriverWait(driver, Duration.ofSeconds(GlobalConstants.LONG_TIMEOUT))
-                .until(ExpectedConditions.invisibilityOfAllElements(getListElement(driver, locator)));
+    protected void waitForListElementsInvisible(String locator) {
+        wait.until(ExpectedConditions.invisibilityOfAllElements(getListElement(locator)));
     }
 
     /**
@@ -630,7 +657,7 @@ public class BasePage {
      * Đợi cho loading icon biến mất
      */
 
-    protected void waitForLoadingIconInvisible(WebDriver driver) {
-        waitForListElementsInvisible(driver, BasePageUI.LOADING_ICON);
+    protected void waitForLoadingIconInvisible() {
+        waitForListElementsInvisible(BasePageUI.LOADING_ICON);
     }
 }
