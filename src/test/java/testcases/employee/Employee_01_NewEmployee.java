@@ -34,9 +34,16 @@ public class Employee_01_NewEmployee extends BaseTest {
 
     @Test
     public void LoginToDashBoard_01() {
+        log.info("STEP 1 - Enter username - ", username);
         loginPage.enterUsernameTextbox(username);
+
+        log.info("STEP 2 - Enter password - ", password);
         loginPage.enterPasswordTextbox(password);
+
+        log.info("STEP 3 - Click to log in button");
+        log.info("STEP 4 - Wait for all loading icon disappear");
         dashboardPage = loginPage.clickToLoginButton();
+
     }
 
     @Test
