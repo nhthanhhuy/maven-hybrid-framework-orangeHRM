@@ -1,10 +1,11 @@
 package testcases.employee;
 
 import core.BaseTest;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Story;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
@@ -13,7 +14,8 @@ import pageObjects.DashboardPageObject;
 import pageObjects.LoginPageObject;
 import pageObjects.PageGenerator;
 
-import java.time.Duration;
+
+@Epic("Employee management")
 
 public class Employee_01_NewEmployee extends BaseTest {
 
@@ -33,11 +35,13 @@ public class Employee_01_NewEmployee extends BaseTest {
     }
 
     @Test
+    @Story("Admin log in to dashboard successfully")
+    @Description("Verify admin can log in to dashboard")
     public void LoginToDashBoard_01() {
-        log.info("STEP 1 - Enter username - ", username);
+        log.info("STEP 1 - Enter username - " + username);
         loginPage.enterUsernameTextbox(username);
 
-        log.info("STEP 2 - Enter password - ", password);
+        log.info("STEP 2 - Enter password - " + password);
         loginPage.enterPasswordTextbox(password);
 
         log.info("STEP 3 - Click to log in button");
@@ -46,9 +50,11 @@ public class Employee_01_NewEmployee extends BaseTest {
 
     }
 
+    @Story("Story - Test only")
+    @Description("Description - Test only")
     @Test
     public void NewEmployee_02() {
-
+        Assert.assertTrue(false);
     }
 
     @AfterClass

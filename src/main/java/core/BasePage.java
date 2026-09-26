@@ -38,6 +38,8 @@ public class BasePage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(GlobalConstants.LONG_TIMEOUT));
     }
 
+
+
     // =============================================================================
     // 1. BROWSER
     // Các hàm điều hướng cơ bản của trình duyệt.

@@ -6,12 +6,18 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.annotations.BeforeSuite;
 
+import java.io.File;
 import java.time.Duration;
 
 public class BaseTest {
 
     private WebDriver driver;
+
+    public WebDriver getDriver() {
+        return driver;
+    }
 
     protected static final Logger log = LogManager.getLogger(BaseTest.class);
 
@@ -60,6 +66,17 @@ public class BaseTest {
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
         return driver;
+    }
+
+    @BeforeSuite
+    public void cleanAllureResults() {
+        File allureResultsDir = new File("target/allure-results");
+        if (allureResultsDir.exists()) {
+            for (File file : allureResultsDir.listFiles()) {
+                file.delete();
+            }
+            log.info("Deleted old allure-results files");
+        }
     }
 
 }
