@@ -5,6 +5,7 @@
     <listeners>
         <listener class-name="io.qameta.allure.testng.AllureTestNg"></listener>
         <listener class-name="reportConfig.AllureListener"></listener>
+        <listener class-name="reportConfig.MethodListener"/>
     </listeners>
 
     <parameter name="url" value="http://localhost/orangehrm5/web/index.php/auth/login"></parameter>
@@ -12,21 +13,21 @@
     <test name="Test on Chrome">
         <parameter name="browser" value="CHROME"></parameter>
         <classes>
-            <class name="testcases.employee.Employee_01_NewEmployee" />
+            <class name="testcases.employee.Employee_02_CustomHardAssert" />
         </classes>
     </test>
 
     <test name="Test on Edge">
         <parameter name="browser" value="Edge"></parameter>
         <classes>
-            <class name="testcases.employee.Employee_01_NewEmployee" />
+            <class name="testcases.employee.Employee_02_CustomHardAssert" />
         </classes>
     </test>
 
     <test name="Test on Firefox">
         <parameter name="browser" value="FIREFOX"></parameter>
         <classes>
-            <class name="testcases.employee.Employee_01_NewEmployee" />
+            <class name="testcases.employee.Employee_02_CustomHardAssert" />
         </classes>
     </test>
 

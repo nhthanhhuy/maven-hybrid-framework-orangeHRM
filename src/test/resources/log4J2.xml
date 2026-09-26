@@ -9,7 +9,7 @@
         </Console>
 
         <!-- Ghi log ra File -->
-        <File name="FileAppender" fileName="logs/automation.log" append="true">
+        <File name="FileAppender" fileName="logs/automation.log" append="false">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5level] %c{1} — %msg%n"/>
         </File>
 

@@ -6,7 +6,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.Assert;
+import org.testng.Reporter;
 import org.testng.annotations.BeforeSuite;
+import reportConfig.AllureListener;
 
 import java.io.File;
 import java.time.Duration;
@@ -77,6 +80,73 @@ public class BaseTest {
             }
             log.info("Deleted old allure-results files");
         }
+    }
+
+// ========================= VERIFY =========================
+
+    protected boolean verifyTrue(boolean condition) {
+        boolean status = true;
+        try {
+            Assert.assertTrue(condition);
+            log.info("---------------------- PASSED -----------------------");
+        } catch (Throwable e) {
+            status = false;
+            log.error("---------------------- FAILED -----------------------");
+
+            // Chụp screenshot ngay tại chỗ fail
+            AllureListener.saveScreenshotPNG("Verify_fail", driver);
+
+            // Attach log vào Allure
+            AllureListener.saveTextLog("verifyTrue FAILED - Condition is false");
+
+            VerificationFailures.getFailures().addFailureForTest(Reporter.getCurrentTestResult(), e);
+            Reporter.getCurrentTestResult().setThrowable(e);
+        }
+        return status;
+    }
+
+    protected boolean verifyFalse(boolean condition) {
+        boolean status = true;
+        try {
+            Assert.assertFalse(condition);
+            log.info("---------------------- PASSED -----------------------");
+        } catch (Throwable e) {
+            status = false;
+            log.error("---------------------- FAILED -----------------------");
+
+            // Chụp screenshot ngay tại chỗ fail
+            AllureListener.saveScreenshotPNG("Verify_fail", driver);
+
+            // Attach log vào Allure
+            AllureListener.saveTextLog("verifyFalse FAILED - Condition is true");
+
+            VerificationFailures.getFailures().addFailureForTest(Reporter.getCurrentTestResult(), e);
+            Reporter.getCurrentTestResult().setThrowable(e);
+        }
+        return status;
+    }
+
+    protected boolean verifyEquals(Object actual, Object expected) {
+        boolean status = true;
+        try {
+            Assert.assertEquals(actual, expected);
+            log.info("---------------------- PASSED -----------------------");
+        } catch (Throwable e) {
+            status = false;
+            log.error("---------------------- FAILED -----------------------");
+            log.error("Expected: " + expected);
+            log.error("Actual  : " + actual);
+
+            // Chụp screenshot ngay tại chỗ fail
+            AllureListener.saveScreenshotPNG("Verify_fail", driver);
+
+            // Attach log Expected/Actual vào Allure
+            AllureListener.saveTextLog("verifyEquals FAILED" + "\nExpected: " + expected + "\nActual  : " + actual);
+
+            VerificationFailures.getFailures().addFailureForTest(Reporter.getCurrentTestResult(), e);
+            Reporter.getCurrentTestResult().setThrowable(e);
+        }
+        return status;
     }
 
 }
