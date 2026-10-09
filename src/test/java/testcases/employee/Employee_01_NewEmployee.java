@@ -4,6 +4,7 @@ import core.BaseTest;
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Story;
+import net.datafaker.Faker;
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -13,6 +14,7 @@ import org.testng.annotations.Test;
 import pageObjects.DashboardPageObject;
 import pageObjects.LoginPageObject;
 import pageObjects.PageGenerator;
+import utilities.DataConfig;
 
 
 @Epic("Employee management")
@@ -20,9 +22,10 @@ import pageObjects.PageGenerator;
 public class Employee_01_NewEmployee extends BaseTest {
 
     private WebDriver driver;
-    private String username, password;
+    private String username, password, firstName, lastName, middleName;
     private LoginPageObject loginPage;
     private DashboardPageObject dashboardPage;
+    private DataConfig faker;
 
     @Parameters({"browser",  "url"})
     @BeforeClass
@@ -32,6 +35,10 @@ public class Employee_01_NewEmployee extends BaseTest {
         username = "admin";
         password = "K25/t23{T--Y";
         loginPage = PageGenerator.getLoginPage(driver);
+        faker = DataConfig.getData();
+        firstName = faker.getFirstname();
+        lastName = faker.getLastname();
+        middleName = faker.getMiddlename();
     }
 
     @Test
